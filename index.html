@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>WhatsApp Test Signup</title></head>
+<body>
+  <button id="signup">Connect WhatsApp Business app</button>
+  <pre id="log"></pre>
+
+  <script async defer crossorigin="anonymous"
+    src="https://connect.facebook.net/en_US/sdk.js"></script>
+  <script>
+    window.fbAsyncInit = function () {
+      FB.init({
+        appId: '1822368168937490',          // from App settings > Basic
+        autoLogAppEvents: true,
+        xfbml: true,
+        version: 'v26.0'    // use the current version from Meta's docs, e.g. v2x.0
+      });
+    };
+
+    const log = (msg) => document.getElementById('log').textContent += msg + '\n';
+
+    // Meta sends progress messages during the signup
+    window.addEventListener('message', (event) => {
+      if (!event.origin.endsWith('facebook.com')) return;
+      try {
+        const data = JSON.parse(event.data);
+        log('Event: ' + JSON.stringify(data));
+      } catch (e) {}
+    });
+
+    document.getElementById('signup').addEventListener('click', () => {
+      FB.login((response) => {
+        if (response.authResponse && response.authResponse.code) {
+          log('Signup finished. Code received (send it to your server to exchange for a token).');
+        } else {
+          log('Signup cancelled or failed: ' + JSON.stringify(response));
+        }
+      }, {
+        config_id: '1602609164261603',
+        response_type: 'code',
+        override_default_response_type: true,
+        extras: {
+          setup: {},
+          featureType: 'whatsapp_business_app_onboarding',
+          sessionInfoVersion: '3'
+        }
+      });
+    });
+  </script>
+</body>
+</html>
